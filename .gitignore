@@ -1,0 +1,9 @@
+*.log
+# Ignore database configuration files
+config/database.yml
+
+# Ignore the build directory
+/build/
+
+# Ignore Python virtual environments
+voxelping-env/
