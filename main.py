@@ -43,85 +43,95 @@ async def on_message(message):
 @bot.slash_command()
 async def status(ctx, serverip: str):
 
-    # URLs for server status API
-    urlJavaStatus = f'https://api.mcsrvstat.us/simple/'
-    returnedStatus = requests.get(f'{urlJavaStatus}{serverip}')
-    rawServerInfo = requests.get(f'https://api.mcsrvstat.us/3/{serverip}')
-    parsedServerInfo = rawServerInfo.json()
-    
-    # Log server info or failure to parse
-    if parsedServerInfo:
-        print(f"{timePrefix} Parsed server info for {serverip}")
-    else:
-        print(f"{timePrefix} Failed to parse server info for {serverip}.")
+    # Acknowledge the interaction to prevent timeout
+    await ctx.defer()
 
-    # Embeds for server status messages
-    failEmbed = discord.Embed(
-        title = "VoxelPing",
-        description = "Server status: **offline**",
-        color = discord.Color.red()
-    )
-
-    passEmbed = discord.Embed(
-        title = "VoxelPing",
-        description = "Server status: **online**",
-        color = discord.Color.green()
-    )
-    
-    # Check and handle HTTP response status code
-    if returnedStatus.status_code != 200:
+    try:
+        # URLs for server status API
+        urlJavaStatus = f'https://api.mcsrvstat.us/simple/'
+        returnedStatus = requests.get(f'{urlJavaStatus}{serverip}')
+        rawServerInfo = requests.get(f'https://api.mcsrvstat.us/3/{serverip}')
+        parsedServerInfo = rawServerInfo.json()
         
-        # Populate the fail embed with error information if the server is not reachable
-        failEmbed.add_field(
-            name = "",
-            value = f"Couldn't resolve status for **{serverip}**. The server might be **offline** or invalid (404)."
+        # Log server info or failure to parse
+        if parsedServerInfo:
+            print(f"{timePrefix} Parsed server info for {serverip}")
+        else:
+            print(f"{timePrefix} Failed to parse server info for {serverip}.")
+
+        # Embeds for server status messages
+        failEmbed = discord.Embed(
+            title = "VoxelPing",
+            description = "Server status: **offline**",
+            color = discord.Color.red()
         )
-        failEmbed.add_field(
+
+        passEmbed = discord.Embed(
+            title = "VoxelPing",
+            description = "Server status: **online**",
+            color = discord.Color.green()
+        )
+        
+        # Check and handle HTTP response status code
+        if returnedStatus.status_code != 200:
+            
+            # Populate the fail embed with error information if the server is not reachable
+            failEmbed.add_field(
+                name = "",
+                value = f"Couldn't resolve status for **{serverip}**. The server might be **offline** or invalid (404)."
+            )
+            failEmbed.add_field(
+                name = "",
+                value = f"Server IP: **{parsedServerInfo['ip']}**"
+            )
+            failEmbed.add_field(
+                name = "",
+                value = f"Hostname: **{parsedServerInfo['hostname']}**"
+            )
+            failEmbed.add_field(
+                name = "",
+                value = f"Port: **{parsedServerInfo['port']}**"
+            )
+            failEmbed.add_field(
+                name = "",
+                value = f"Status: **{parsedServerInfo['online']}**"
+            )
+            await ctx.send(embed=failEmbed)
+            return
+        
+        # Populate the pass embed with server information if online
+        passEmbed.add_field(
             name = "",
             value = f"Server IP: **{parsedServerInfo['ip']}**"
         )
-        failEmbed.add_field(
+        passEmbed.add_field(
             name = "",
             value = f"Hostname: **{parsedServerInfo['hostname']}**"
         )
-        failEmbed.add_field(
+        passEmbed.add_field(
             name = "",
             value = f"Port: **{parsedServerInfo['port']}**"
         )
-        failEmbed.add_field(
+        passEmbed.add_field(
             name = "",
-            value = f"Status: **{parsedServerInfo['online']}**"
+            value = f"Status: **Online**"
         )
-        await ctx.send(embed=failEmbed)
+        passEmbed.add_field(
+            name = "",
+            value = f"Version: **{parsedServerInfo['version']}**"
+        )
+        passEmbed.add_field(
+            name = "",
+            value = f"Players: **{parsedServerInfo['players']['online']}/{parsedServerInfo['players']['max']}**"
+        )
+        await ctx.send(embed=passEmbed)
         return
-    
-    # Populate the pass embed with server information if online
-    passEmbed.add_field(
-        name = "",
-        value = f"Server IP: **{parsedServerInfo['ip']}**"
-    )
-    passEmbed.add_field(
-        name = "",
-        value = f"Hostname: **{parsedServerInfo['hostname']}**"
-    )
-    passEmbed.add_field(
-        name = "",
-        value = f"Port: **{parsedServerInfo['port']}**"
-    )
-    passEmbed.add_field(
-        name = "",
-        value = f"Status: **Online**"
-    )
-    passEmbed.add_field(
-        name = "",
-        value = f"Version: **{parsedServerInfo['version']}**"
-    )
-    passEmbed.add_field(
-        name = "",
-        value = f"Players: **{parsedServerInfo['players']['online']}/{parsedServerInfo['players']['max']}**"
-    )
-    await ctx.send(embed=passEmbed)
-    return
+
+    except Exception as e:
+        # Handle any exceptions and log them
+        print(f"{timePrefix} Exception occurred: {e}")
+        await ctx.send("An error occurred while fetching the server status.")
+        return
 
 # Run the bot with the token
 bot.run(token)
