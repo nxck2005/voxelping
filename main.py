@@ -40,7 +40,7 @@ async def on_message(message):
         await message.channel.send(f'Pong! {round(bot.latency * 1000, 2)} ms.')
 
 # Event for handling slash commands to check server status
-@bot.slash_command()
+@bot.slash_command(description="Gets a minecraft server's status. Java only!")
 async def status(ctx, serverip: str):
 
     # Acknowledge the interaction to prevent timeout
