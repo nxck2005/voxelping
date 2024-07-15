@@ -5,6 +5,9 @@ import datetime
 import json
 import requests
 
+
+
+
 # Get the current date and time
 now = datetime.datetime.now()
 timePrefix = f'[{datetime.datetime.now()}]:'
@@ -17,8 +20,13 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.guild_messages = True
 
+
+
+
 # Create an instance of the bot with the specified intents
 bot = discord.Bot(intents=intents)
+
+
 
 # Event triggered when the bot is ready and connected to Discord
 @bot.event
@@ -26,11 +34,15 @@ async def on_ready():
     print(f'Time: {now}')
     print(f'Logged in as {bot.user}')
 
+
+
 # Event to handle incoming messages
 @bot.event
 async def on_message(message):
     # Log the command issued to the console
     print(f"{timePrefix} Command issued by {message.author}: '{message}")
+
+
 
 # Event for handling slash commands to check server status
 @bot.slash_command(description="Gets a minecraft server's status. Java only!")
@@ -126,6 +138,9 @@ async def status(ctx, serverip: str):
         print(f"{timePrefix} Exception occurred: {e}")
         await ctx.respond("An error occurred while fetching the server status.")
         return
+
+
+
 
 @bot.slash_command(description="Get the ping for the bot.")
 async def ping(ctx):
