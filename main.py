@@ -30,7 +30,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     # Log the command issued to the console
-    print(f"{timePrefix} hello command issued by {message.author}")
+    print(f"{timePrefix} Command issued by {message.author}")
     # Ignore messages from the bot itself to prevent loops
     if message.author == bot.user:
         return
@@ -96,7 +96,7 @@ async def status(ctx, serverip: str):
                 name = "",
                 value = f"Status: **{parsedServerInfo['online']}**"
             )
-            await ctx.send(embed=failEmbed)
+            await ctx.respond(embed=failEmbed)
             return
         
         # Populate the pass embed with server information if online
@@ -124,7 +124,7 @@ async def status(ctx, serverip: str):
             name = "",
             value = f"Players: **{parsedServerInfo['players']['online']}/{parsedServerInfo['players']['max']}**"
         )
-        await ctx.send(embed=passEmbed)
+        await ctx.respond(embed=passEmbed)
         return
 
     except Exception as e:
