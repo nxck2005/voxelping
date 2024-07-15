@@ -7,7 +7,7 @@ import requests
 
 # Get the current date and time
 now = datetime.datetime.now()
-timePrefix = f'[{now}]:'
+timePrefix = f'[{datetime.datetime.now()}]:'
 
 # Retrieve the Discord token from environment variables
 token = os.getenv('DISCORD_TOKEN')
@@ -30,14 +30,7 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     # Log the command issued to the console
-    print(f"{timePrefix} Command issued by {message.author}")
-    # Ignore messages from the bot itself to prevent loops
-    if message.author == bot.user:
-        return
-    
-    # Respond to '$ping' command with bot latency
-    if message.content.startswith('$ping'):
-        await message.channel.send(f'Pong! {round(bot.latency * 1000, 2)} ms.')
+    print(f"{timePrefix} Command issued by {message.author}: '{message}")
 
 # Event for handling slash commands to check server status
 @bot.slash_command(description="Gets a minecraft server's status. Java only!")
@@ -56,6 +49,7 @@ async def status(ctx, serverip: str):
         # Log server info or failure to parse
         if parsedServerInfo:
             print(f"{timePrefix} Parsed server info for {serverip}")
+            print(parsedServerInfo)
         else:
             print(f"{timePrefix} Failed to parse server info for {serverip}.")
 
@@ -130,8 +124,20 @@ async def status(ctx, serverip: str):
     except Exception as e:
         # Handle any exceptions and log them
         print(f"{timePrefix} Exception occurred: {e}")
-        await ctx.send("An error occurred while fetching the server status.")
+        await ctx.respond("An error occurred while fetching the server status.")
         return
+
+@bot.slash_command(description="Get the ping for the bot.")
+async def ping(ctx):
+
+    pingEmbed = discord.Embed(
+        title='VoxelPing',
+        description=f'Pong! **{round(bot.latency * 1000, 2)}ms**',
+        color=discord.Color.green()
+    )
+
+    await ctx.respond(embed=pingEmbed)
+
 
 # Run the bot with the token
 bot.run(token)
