@@ -32,7 +32,7 @@ bot = discord.Bot(intents=intents)
 @bot.event
 async def on_ready():
     print(f'Time: {now}')
-    print(f'Logged in as {bot.user}')
+    print(f'Logged in as {bot.user}. Bot ready!')
 
 
 
